@@ -1,0 +1,43 @@
+# Build tooling
+target/
+*.class
+*.jar
+*.jmod
+
+# Local config / secrets - never shipped to the Docker daemon or image
+.env
+.env.*
+!.env.example
+!.env.supabase.local.example
+
+# Runtime data
+logs/
+*.log
+uploads/
+uploads-dev/
+uploads-test/
+data/
+
+# VCS / CI
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.iml
+
+# Deploy orchestration (not needed inside the image)
+Dockerfile
+docker-entrypoint.sh
+.dockerignore
+render.yaml
+railway.json
+Procfile
+run-supabase.ps1
+start-supabase-detached.ps1
+
+# Scratch / docs
+out/
+*.pid
+*.tmp
+*.md

@@ -2,8 +2,10 @@ package com.fellowlodge.api.controller;
 
 import com.fellowlodge.api.common.ApiResponse;
 import com.fellowlodge.api.common.PageResponse;
+import com.fellowlodge.api.dto.publiccatalog.PublicRoomResponse;
 import com.fellowlodge.api.entity.Room;
 import com.fellowlodge.api.enums.RoomStatus;
+import com.fellowlodge.api.service.PublicCatalogService;
 import com.fellowlodge.api.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ import java.util.UUID;
 public class RoomController {
 
     private final RoomService roomService;
+    private final PublicCatalogService catalogService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROOMS:READ')")
@@ -54,14 +57,19 @@ public class RoomController {
     }
 
     @GetMapping("/available")
-    @PreAuthorize("hasAuthority('ROOMS:READ')")
-    public ApiResponse<List<Room>> available(
+    public ApiResponse<List<PublicRoomResponse>> available(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
-        if (checkIn == null || checkOut == null) {
-            return ApiResponse.ok(roomService.findAvailable());
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate,
+            @RequestParam(required = false) UUID roomId) {
+        LocalDate from = checkIn != null ? checkIn : checkInDate;
+        LocalDate to = checkOut != null ? checkOut : checkOutDate;
+        List<PublicRoomResponse> rooms = catalogService.availableRooms(from, to);
+        if (roomId != null) {
+            rooms = rooms.stream().filter(room -> room.id().equals(roomId)).toList();
         }
-        return ApiResponse.ok(roomService.findAvailableForDates(checkIn, checkOut));
+        return ApiResponse.ok(rooms);
     }
 
     @GetMapping("/{id}")

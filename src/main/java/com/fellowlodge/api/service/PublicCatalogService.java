@@ -1,6 +1,9 @@
 package com.fellowlodge.api.service;
 
+import com.fellowlodge.api.common.exception.ResourceNotFoundException;
+import com.fellowlodge.api.dto.publiccatalog.PublicAmenityResponse;
 import com.fellowlodge.api.dto.publiccatalog.PublicMenuResponse;
+import com.fellowlodge.api.dto.publiccatalog.PublicPolicyResponse;
 import com.fellowlodge.api.dto.publiccatalog.PublicRoomResponse;
 import com.fellowlodge.api.dto.publiccatalog.PublicRoomTypeResponse;
 import com.fellowlodge.api.entity.Announcement;
@@ -25,9 +28,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -45,7 +50,6 @@ public class PublicCatalogService {
 
     private final RoomService roomService;
     private final RoomTypeService roomTypeService;
-    private final AmenityService amenityService;
     private final HotelServicesService hotelServicesService;
     private final EventService eventService;
     private final ConferenceHallService conferenceHallService;
@@ -66,9 +70,18 @@ public class PublicCatalogService {
         return roomTypeService.findActive();
     }
 
-    public List<com.fellowlodge.api.entity.Amenity> amenities() {
-        return amenityService.findAll().stream()
-                .sorted(Comparator.comparing(com.fellowlodge.api.entity.Amenity::getName))
+    public List<PublicAmenityResponse> amenities() {
+        return hotelServicesService.findActive().stream()
+                .sorted(Comparator.comparing(HotelService::getName))
+                .map(service -> new PublicAmenityResponse(
+                        service.getId(),
+                        service.getName(),
+                        service.getDescription(),
+                        null,
+                        service.getCategory(),
+                        service.getPrice(),
+                        service.getDurationMinutes(),
+                        service.getImageUrl()))
                 .toList();
     }
 
@@ -200,6 +213,30 @@ public class PublicCatalogService {
 
     public List<Policy> policies() {
         return policyService.findActive();
+    }
+
+    public PublicPolicyResponse policyBySlug(String slug) {
+        return policyService.findActive().stream()
+                .filter(policy -> slugify(policy.getTitle()).equals(slug))
+                .findFirst()
+                .map(this::toPublicPolicy)
+                .orElseThrow(() -> new ResourceNotFoundException("Policy not found for slug: " + slug));
+    }
+
+    private PublicPolicyResponse toPublicPolicy(Policy policy) {
+        LocalDateTime updated = policy.getUpdatedAt() != null ? policy.getUpdatedAt() : policy.getCreatedAt();
+        return new PublicPolicyResponse(policy.getId(), slugify(policy.getTitle()), policy.getTitle(),
+                policy.getContent(), policy.getCategory(), updated);
+    }
+
+    private static String slugify(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.toLowerCase(Locale.ROOT)
+                .replace("&", "and")
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
     }
 
     public List<Faq> faqs() {

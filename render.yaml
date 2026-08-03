@@ -1,13 +1,13 @@
 # Render blueprint for the Fellow Lodge backend (Supabase PostgreSQL).
 # Import this file in Render:  New -> Blueprint -> repo root
+# The service runs from the Docker image built by ./Dockerfile.
 # Secrets (SUPABASE_DB_USERNAME / SUPABASE_DB_PASSWORD) are set in the Render
 # dashboard and are marked sync: false so they are never committed or generated.
 services:
   - type: web
     name: fellow-lodge-backend
-    runtime: java
-    buildCommand: mvn -DskipTests package
-    startCommand: java -jar target/fellow-lodge-backend-1.0.0.jar
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /actuator/health
     autoDeploy: true
     plan: free

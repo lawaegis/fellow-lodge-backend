@@ -55,13 +55,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     // Public browsing (guest portal without auth)
                     auth.requestMatchers(mvc.pattern("/api/public/**")).permitAll()
+                            // Room availability for the guest portal booking widget
+                            .requestMatchers(mvc.pattern("/api/rooms/available")).permitAll()
                             // Restaurant menu & categories are public (guest portal browsing)
                             .requestMatchers(mvc.pattern("/api/restaurant/categories/**")).permitAll()
                             .requestMatchers(mvc.pattern("/api/restaurant/menu/**")).permitAll()
                             // Authentication endpoints
                             .requestMatchers(mvc.pattern("/api/auth/**")).permitAll()
-                            // Uploaded files
+                            // Uploaded files (served both at root and under /api
+                            // because the portal resolves relative paths against
+                            // its API base URL)
                             .requestMatchers(mvc.pattern("/uploads/**")).permitAll()
+                            .requestMatchers(mvc.pattern("/api/uploads/**")).permitAll()
                             // Actuator health
                             .requestMatchers(mvc.pattern("/actuator/health")).permitAll()
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();

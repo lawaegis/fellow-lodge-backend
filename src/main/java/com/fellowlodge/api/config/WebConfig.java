@@ -30,7 +30,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path uploadRoot = Paths.get(appProperties.getStorage().getUploadDir()).toAbsolutePath().normalize();
-        registry.addResourceHandler("/uploads/**")
+        // Stored paths are returned as "/uploads/..." and the portal resolves a
+        // leading slash against its API base URL (e.g. "http://host:8081/api"),
+        // so the same files are served both at the root and under /api.
+        registry.addResourceHandler("/uploads/**", "/api/uploads/**")
                 .addResourceLocations("file:" + uploadRoot + "/");
     }
 }

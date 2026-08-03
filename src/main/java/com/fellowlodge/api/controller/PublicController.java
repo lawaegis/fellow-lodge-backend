@@ -1,10 +1,11 @@
 package com.fellowlodge.api.controller;
 
 import com.fellowlodge.api.common.ApiResponse;
+import com.fellowlodge.api.dto.publiccatalog.PublicAmenityResponse;
 import com.fellowlodge.api.dto.publiccatalog.PublicMenuResponse;
+import com.fellowlodge.api.dto.publiccatalog.PublicPolicyResponse;
 import com.fellowlodge.api.dto.publiccatalog.PublicRoomResponse;
 import com.fellowlodge.api.dto.portal.HotelInfoResponse;
-import com.fellowlodge.api.entity.Amenity;
 import com.fellowlodge.api.entity.Announcement;
 import com.fellowlodge.api.entity.Attraction;
 import com.fellowlodge.api.entity.Banner;
@@ -54,7 +55,7 @@ public class PublicController {
     }
 
     @GetMapping("/amenities")
-    public ApiResponse<List<Amenity>> amenities() {
+    public ApiResponse<List<PublicAmenityResponse>> amenities() {
         return ApiResponse.ok(catalogService.amenities());
     }
 
@@ -130,6 +131,11 @@ public class PublicController {
     @GetMapping("/policies")
     public ApiResponse<List<Policy>> policies() {
         return ApiResponse.ok(catalogService.policies());
+    }
+
+    @GetMapping("/policies/{slug}")
+    public ApiResponse<PublicPolicyResponse> policyBySlug(@PathVariable String slug) {
+        return ApiResponse.ok(catalogService.policyBySlug(slug));
     }
 
     @GetMapping("/faqs")
