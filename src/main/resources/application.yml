@@ -40,6 +40,9 @@ app:
     refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000}
   storage:
     upload-dir: ${UPLOAD_DIR:./uploads}
+    supabase-url: ${SUPABASE_URL:}
+    service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:}
+    buckets: ${SUPABASE_STORAGE_BUCKETS:}
   security:
     max-login-attempts: ${MAX_LOGIN_ATTEMPTS:5}
     lock-duration-minutes: ${LOCK_DURATION_MINUTES:30}

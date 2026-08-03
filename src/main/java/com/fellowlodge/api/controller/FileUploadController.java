@@ -110,6 +110,6 @@ public class FileUploadController {
                                                    @RequestParam(defaultValue = "misc") String folder,
                                                    @RequestParam(required = false) String filename) {
         return ApiResponse.ok("File uploaded",
-                Map.of("path", "/uploads/" + fileStorageService.store(file, folder, filename)));
+                Map.of("path", fileStorageService.store(file, folder, filename)));
     }
 }

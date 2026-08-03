@@ -28,6 +28,9 @@ public class AppProperties {
     @Setter
     public static class Storage {
         private String uploadDir;
+        private String supabaseUrl;
+        private String serviceRoleKey;
+        private String buckets;
     }
 
     @Getter

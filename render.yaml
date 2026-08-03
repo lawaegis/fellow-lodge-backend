@@ -1,8 +1,13 @@
-# Render blueprint for the Fellow Lodge backend (Supabase PostgreSQL).
+# Render blueprint for the Fellow Lodge backend (Supabase PostgreSQL + Supabase Storage).
 # Import this file in Render:  New -> Blueprint -> repo root
 # The service runs from the Docker image built by ./Dockerfile.
-# Secrets (SUPABASE_DB_USERNAME / SUPABASE_DB_PASSWORD) are set in the Render
-# dashboard and are marked sync: false so they are never committed or generated.
+# Secrets (SUPABASE_DB_USERNAME / SUPABASE_DB_PASSWORD / SUPABASE_SERVICE_ROLE_KEY)
+# are set in the Render dashboard and are marked sync: false so they are never
+# committed or generated.
+#
+# Storage: uploaded files go to public Supabase Storage buckets (server-side via
+# the service-role key). No persistent disk is used, which is why this service
+# fits the free tier.
 services:
   - type: web
     name: fellow-lodge-backend
@@ -11,15 +16,17 @@ services:
     healthCheckPath: /actuator/health
     autoDeploy: true
     plan: free
-    disk:
-      name: uploads
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: supabase
       - key: JWT_SECRET
         generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKETS
+        value: rooms,gallery,events,conferences,banners,menu,profiles,attractions,services,misc
       - key: SUPABASE_DB_HOST
         sync: false
       - key: SUPABASE_DB_PORT
@@ -32,7 +39,5 @@ services:
         sync: false
       - key: SUPABASE_DB_SSLMODE
         value: require
-      - key: UPLOAD_DIR
-        value: /data/uploads
       - key: CORS_ALLOWED_ORIGINS
         value: https://fellow-lodge-portal.onrender.com

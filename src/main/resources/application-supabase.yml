@@ -26,4 +26,6 @@ spring:
 
 app:
   storage:
-    upload-dir: ${UPLOAD_DIR:/data/uploads}
+    # Local-filesystem fallback dir (only used when SUPABASE_SERVICE_ROLE_KEY is absent).
+    # /tmp keeps Render's disk-less free tier happy if the fallback is ever hit.
+    upload-dir: ${UPLOAD_DIR:/tmp/uploads}
