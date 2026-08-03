@@ -1,0 +1,14 @@
+# Normalize line endings: store LF in the repo, check out native on each OS.
+* text=auto
+
+*.java text eol=lf
+*.yml text eol=lf
+*.sql text eol=lf
+*.xml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.properties text eol=lf
+*.gitignore text eol=lf
+*.example text eol=lf
+*.ps1 text eol=crlf
+Procfile text eol=lf

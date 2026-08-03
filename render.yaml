@@ -1,0 +1,38 @@
+# Render blueprint for the Fellow Lodge backend (Supabase PostgreSQL).
+# Import this file in Render:  New -> Blueprint -> repo root
+# Secrets (SUPABASE_DB_USERNAME / SUPABASE_DB_PASSWORD) are set in the Render
+# dashboard and are marked sync: false so they are never committed or generated.
+services:
+  - type: web
+    name: fellow-lodge-backend
+    runtime: java
+    buildCommand: mvn -DskipTests package
+    startCommand: java -jar target/fellow-lodge-backend-1.0.0.jar
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    plan: free
+    disk:
+      name: uploads
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: supabase
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPABASE_DB_HOST
+        sync: false
+      - key: SUPABASE_DB_PORT
+        value: 5432
+      - key: SUPABASE_DB_NAME
+        value: postgres
+      - key: SUPABASE_DB_USERNAME
+        sync: false
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+      - key: SUPABASE_DB_SSLMODE
+        value: require
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://fellow-lodge-portal.onrender.com
