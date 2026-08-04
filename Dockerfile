@@ -31,8 +31,8 @@ RUN mvn -B -q package -DskipTests
 # -----------------------------------------------------------------------------
 FROM eclipse-temurin:21-jre AS runtime
 
-ARG APP_HOME=/opt/fellowlodge
-ARG APP_USER=fellowlodge
+ENV APP_HOME=/opt/fellowlodge \
+    APP_USER=fellowlodge
 
 RUN groupadd -r ${APP_USER} \
     && useradd -r -g ${APP_USER} -d ${APP_HOME} ${APP_USER} \
@@ -44,11 +44,6 @@ WORKDIR ${APP_HOME}
 # Copy the application jar from the build stage.
 COPY --from=build /build/target/fellow-lodge-backend-1.0.0.jar app.jar
 
-# Entrypoint fixes ownership of the persistent upload volume at container start
-# (Render mounts its disk over /data at runtime), then drops to a non-root user.
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
 # Production profile only. Secrets come from Render env vars, never the image.
 ENV SPRING_PROFILES_ACTIVE=supabase
 
@@ -56,5 +51,10 @@ ENV SPRING_PROFILES_ACTIVE=supabase
 # ${PORT:8081} (see application.yml). No port is hardcoded for production.
 EXPOSE 8081
 
+# Run as the unprivileged app user. No entrypoint is required: there is no
+# persistent upload volume to prepare (uploads live in Supabase Storage and the
+# container runs diskless on Render Free).
+USER ${APP_USER}
+
 # Heap sized to the container memory limit; exit instead of hanging on OOM.
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["java", "-XX:MaxRAMPercentage=75.0", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]
