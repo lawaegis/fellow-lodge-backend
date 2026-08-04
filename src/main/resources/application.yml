@@ -21,6 +21,8 @@ spring:
 
 server:
   port: ${PORT:${SERVER_PORT:8081}}
+  tomcat:
+    uri-encoding: UTF-8
   error:
     include-message: never
     include-stacktrace: never
