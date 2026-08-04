@@ -40,4 +40,4 @@ services:
       - key: SUPABASE_DB_SSLMODE
         value: require
       - key: CORS_ALLOWED_ORIGINS
-        value: https://fellow-lodge-portal.onrender.com
+        value: https://law-aegis-fellow-lodge.vercel.app
