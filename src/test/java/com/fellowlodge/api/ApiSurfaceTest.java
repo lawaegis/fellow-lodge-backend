@@ -59,7 +59,7 @@ class ApiSurfaceTest {
     };
 
     private static final String[] PUBLIC_CONTRACT_ENDPOINTS = {
-            "/api/public/room-types", "/api/public/amenities", "/api/public/rooms",
+            "/api/version", "/api/public/room-types", "/api/public/amenities", "/api/public/rooms",
             "/api/public/services", "/api/public/events", "/api/public/conference-halls",
             "/api/public/promotions", "/api/public/gallery", "/api/public/reviews",
             "/api/public/menu", "/api/public/event-packages", "/api/public/conference-packages",

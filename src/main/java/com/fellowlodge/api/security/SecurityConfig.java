@@ -55,6 +55,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     // Public browsing (guest portal without auth)
                     auth.requestMatchers(mvc.pattern("/api/public/**")).permitAll()
+                            // Version metadata for the desktop update checker
+                            .requestMatchers(mvc.pattern("/api/version")).permitAll()
                             // Room availability for the guest portal booking widget
                             .requestMatchers(mvc.pattern("/api/rooms/available")).permitAll()
                             // Restaurant menu & categories are public (guest portal browsing)

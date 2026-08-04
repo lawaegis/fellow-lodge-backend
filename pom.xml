@@ -13,7 +13,7 @@
 
     <groupId>com.fellowlodge</groupId>
     <artifactId>fellow-lodge-backend</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <name>Fellow Lodge Backend</name>
     <description>Centralized Spring Boot REST API for the Fellow Lodge Hotel Management Platform</description>
 

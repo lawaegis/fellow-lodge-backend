@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 @Setter
 public class AppProperties {
 
+    private String version = "2.0.0";
+    private String minDesktopVersion = "2.0.0";
     private final Jwt jwt = new Jwt();
     private final Storage storage = new Storage();
     private final Security security = new Security();
