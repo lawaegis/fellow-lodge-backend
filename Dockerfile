@@ -41,8 +41,9 @@ RUN groupadd -r ${APP_USER} \
 
 WORKDIR ${APP_HOME}
 
-# Copy the application jar from the build stage.
-COPY --from=build /build/target/fellow-lodge-backend-1.0.0.jar app.jar
+# Copy the application jar from the build stage. Wildcard keeps this stable
+# across version bumps (the version lives only in pom.xml).
+COPY --from=build /build/target/fellow-lodge-backend-*.jar app.jar
 
 # Production profile only. Secrets come from Render env vars, never the image.
 ENV SPRING_PROFILES_ACTIVE=supabase
