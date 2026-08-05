@@ -190,6 +190,46 @@ class ContentManagementApiTest {
     }
 
     @Test
+    @DisplayName("Admin amenity CRUD works without a client-supplied id")
+    void adminAmenityCrudWorks() throws Exception {
+        String suffix = String.valueOf(System.nanoTime() % 1000000);
+        String amenityName = "CT-Amenity-" + suffix;
+        String admin = adminToken();
+
+        MvcResult created = mockMvc.perform(post("/api/amenities")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"" + amenityName + "\",\"icon\":\"spa\","
+                                + "\"description\":\"CT amenity description\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String amenityId = data(created).get("id").asText();
+        assertThat(amenityId)
+                .as("server generates an id for the new amenity").isNotBlank();
+
+        assertThat(findInArray(adminList("/api/amenities"), "name", amenityName))
+                .as("new amenity appears in the admin list").isNotNull();
+
+        mockMvc.perform(put("/api/amenities/" + amenityId)
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"" + amenityName + "\",\"icon\":\"gym\","
+                                + "\"description\":\"CT amenity updated\"}"))
+                .andExpect(status().isOk());
+
+        JsonNode updated = findInArray(adminList("/api/amenities"), "name", amenityName);
+        assertThat(updated.get("description").asText())
+                .as("updated description is persisted").isEqualTo("CT amenity updated");
+
+        mockMvc.perform(delete("/api/amenities/" + amenityId)
+                        .header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk());
+
+        assertThat(findInArray(adminList("/api/amenities"), "name", amenityName))
+                .as("deleted amenity disappears from the admin list").isNull();
+    }
+
+    @Test
     @DisplayName("Role-based permissions gate the content write endpoints")
     void roleBasedAccessControlGatesContentWrites() throws Exception {
         String reception = receptionToken();
@@ -239,6 +279,13 @@ class ContentManagementApiTest {
 
     private JsonNode publicDetail(String url) throws Exception {
         return data(mockMvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andReturn());
+    }
+
+    private JsonNode adminList(String url) throws Exception {
+        return data(mockMvc.perform(get(url)
+                        .header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isOk())
                 .andReturn());
     }
