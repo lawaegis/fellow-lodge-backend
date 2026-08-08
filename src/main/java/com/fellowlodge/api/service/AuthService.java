@@ -66,8 +66,12 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request, String ipAddress) {
-        User user = userRepository.findByUsernameIgnoreCase(request.username())
-                .orElseGet(() -> userRepository.findByEmailIgnoreCase(request.username())
+        String identifier = request.identifier();
+        if (identifier == null || identifier.isBlank()) {
+            throw new InvalidCredentialsException("Invalid username or password.");
+        }
+        User user = userRepository.findByUsernameIgnoreCase(identifier)
+                .orElseGet(() -> userRepository.findByEmailIgnoreCase(identifier)
                         .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password.")));
 
         rejectLockedUser(user);

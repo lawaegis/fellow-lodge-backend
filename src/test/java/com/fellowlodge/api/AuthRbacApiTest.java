@@ -119,6 +119,57 @@ class AuthRbacApiTest {
     }
 
     @Test
+    @DisplayName("Login accepts the email field posted by the guest portal")
+    void emailFieldLoginWorks() throws Exception {
+        String email = "login-" + UUID.randomUUID().toString().substring(0, 8) + "@test.com";
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Email\",\"lastName\":\"Login\",\"email\":\""
+                                + email + "\",\"phone\":\"555-0300\",\"password\":\"EmailLogin@123\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\",\"password\":\"EmailLogin@123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.data.user.username").value(email))
+                .andExpect(jsonPath("$.data.user.role").value("Guest"));
+    }
+
+    @Test
+    @DisplayName("Staff login accepts the email field with the admin email")
+    void emailFieldLoginWorksForStaff() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"admin@fellowlodge.com\",\"password\":\"Admin@123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.data.user.role").value("Admin"));
+    }
+
+    @Test
+    @DisplayName("Login without any identifier is rejected with a validation error")
+    void loginWithoutIdentifierRejected() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"password\":\"Admin@123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Request validation failed."))
+                .andExpect(jsonPath("$.fieldErrors.username").value("Username or email is required"));
+    }
+
+    @Test
+    @DisplayName("Login with a blank email field is rejected with a validation error")
+    void loginWithBlankEmailRejected() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"\",\"password\":\"Admin@123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.username").value("Username or email is required"));
+    }
+
+    @Test
     @DisplayName("Guest self-registration creates a working guest account")
     void guestRegistrationWorks() throws Exception {
         String email = "guest-" + UUID.randomUUID().toString().substring(0, 8) + "@test.com";
